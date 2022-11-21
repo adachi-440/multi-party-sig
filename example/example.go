@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/taurusgroup/multi-party-sig/internal/test"
 	"github.com/taurusgroup/multi-party-sig/pkg/ecdsa"
@@ -182,22 +183,22 @@ func All(id party.ID, ids party.IDSlice, threshold int, message []byte, n *test.
 	defer wg.Done()
 
 	// XOR
-	err := XOR(id, ids, n)
-	if err != nil {
-		return err
-	}
+	// err := XOR(id, ids, n)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// CMP KEYGEN
-	keygenConfig, err := CMPKeygen(id, ids, threshold, n, pl)
-	if err != nil {
-		return err
-	}
+	// keygenConfig, err := CMPKeygen(id, ids, threshold, n, pl)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// CMP REFRESH
-	refreshConfig, err := CMPRefresh(keygenConfig, n, pl)
-	if err != nil {
-		return err
-	}
+	// refreshConfig, err := CMPRefresh(keygenConfig, n, pl)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// FROST KEYGEN
 	frostResult, err := FrostKeygen(id, ids, threshold, n)
@@ -206,10 +207,10 @@ func All(id party.ID, ids party.IDSlice, threshold int, message []byte, n *test.
 	}
 
 	// FROST KEYGEN TAPROOT
-	frostResultTaproot, err := FrostKeygenTaproot(id, ids, threshold, n)
-	if err != nil {
-		return err
-	}
+	// frostResultTaproot, err := FrostKeygenTaproot(id, ids, threshold, n)
+	// if err != nil {
+	// 	return err
+	// }
 
 	signers := ids[:threshold+1]
 	if !signers.Contains(id) {
@@ -218,22 +219,22 @@ func All(id party.ID, ids party.IDSlice, threshold int, message []byte, n *test.
 	}
 
 	// CMP SIGN
-	err = CMPSign(refreshConfig, message, signers, n, pl)
-	if err != nil {
-		return err
-	}
+	// err = CMPSign(refreshConfig, message, signers, n, pl)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// CMP PRESIGN
-	preSignature, err := CMPPreSign(refreshConfig, signers, n, pl)
-	if err != nil {
-		return err
-	}
+	// preSignature, err := CMPPreSign(refreshConfig, signers, n, pl)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// CMP PRESIGN ONLINE
-	err = CMPPreSignOnline(refreshConfig, preSignature, message, n, pl)
-	if err != nil {
-		return err
-	}
+	// err = CMPPreSignOnline(refreshConfig, preSignature, message, n, pl)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// FROST SIGN
 	err = FrostSign(frostResult, id, message, signers, n)
@@ -242,18 +243,19 @@ func All(id party.ID, ids party.IDSlice, threshold int, message []byte, n *test.
 	}
 
 	// FROST SIGN TAPROOT
-	err = FrostSignTaproot(frostResultTaproot, id, message, signers, n)
-	if err != nil {
-		return err
-	}
+	// err = FrostSignTaproot(frostResultTaproot, id, message, signers, n)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
 
 func main() {
 
-	ids := party.IDSlice{"a", "b", "c", "d", "e", "f"}
-	threshold := 4
+	now := time.Now()
+	ids := party.IDSlice{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"}
+	threshold := 10
 	messageToSign := []byte("hello")
 
 	net := test.NewNetwork(ids)
@@ -270,4 +272,5 @@ func main() {
 		}(id)
 	}
 	wg.Wait()
+	fmt.Printf("Complete: %vms\n", time.Since(now).Milliseconds())
 }
